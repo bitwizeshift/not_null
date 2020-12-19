@@ -750,6 +750,18 @@ cpp::bitwizeshift::not_null<T>::not_null(ctor_tag, P&& ptr)
 // Utilities
 //-----------------------------------------------------------------------------
 
+// The implementation of `check_not_null` below triggers `-Wunused-value`
+// warnings due to the intentional use of the comma-operator. Suppress this,
+// since this is intentional to get around some limitations of calling
+// non-constexpr functions in a constexpr context
+#if defined(__clang__)
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wunused-value"
+#elif defined(__GNUC__)
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wunused-value"
+#endif // defined(__GNUC__)
+
 template <typename T>
 inline constexpr NOT_NULL_INLINE_VISIBILITY
 auto NOT_NULL_NS_IMPL::check_not_null(T&& t)
@@ -758,6 +770,12 @@ auto NOT_NULL_NS_IMPL::check_not_null(T&& t)
   return (t != nullptr || (detail::throw_null_pointer_error(), true)),
     assume_not_null(detail::not_null_forward<T>(t));
 }
+
+#if defined(__clang__)
+# pragma clang diagnostic pop
+#elif defined(__GNUC__)
+# pragma GCC diagnostic pop
+#endif // defined(__GNUC__)
 
 template <typename T>
 inline constexpr NOT_NULL_INLINE_VISIBILITY
