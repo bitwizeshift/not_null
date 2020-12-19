@@ -150,6 +150,16 @@ inline namespace bitwizeshift {
     /// \brief Throws a not_null_contract_violation in exception mode
     [[noreturn]] NOT_NULL_CPP14_CONSTEXPR auto throw_null_pointer_error() -> void;
 
+    ///////////////////////////////////////////////////////////////////////////
+    /// \brief A private type that exists to construct no_null's using the
+    ///        private constructor (through friendship)
+    ///////////////////////////////////////////////////////////////////////////
+    struct not_null_factory
+    {
+      template <typename T>
+      static constexpr auto make(T&& p) -> not_null<typename std::decay<T>::type>;
+    };
+
     template <typename T, typename U>
     struct not_null_is_explicit_convertible : std::integral_constant<bool,(
       std::is_constructible<T,U>::value &&
@@ -163,6 +173,10 @@ inline namespace bitwizeshift {
     )>{};
 
   } // namespace detail
+
+  //===========================================================================
+  // class : not_null
+  //===========================================================================
 
   /////////////////////////////////////////////////////////////////////////////
   /// \brief A wrapper type around a pointer to disallow null assignments
@@ -453,11 +467,7 @@ inline namespace bitwizeshift {
     constexpr not_null(ctor_tag, P&& ptr)
       noexcept(std::is_nothrow_constructible<typename std::decay<P>::type,P>::value);
 
-    template <typename U>
-    friend constexpr auto assume_not_null(U&&)
-      noexcept(std::is_nothrow_constructible<typename std::decay<U>::type,U>::value)
-      -> not_null<typename std::decay<U>::type>;
-
+    friend detail::not_null_factory;
   };
 
   //===========================================================================
@@ -671,6 +681,19 @@ auto NOT_NULL_NS_IMPL::detail::throw_null_pointer_error()
 #endif
 }
 
+template <typename T>
+inline constexpr NOT_NULL_INLINE_VISIBILITY
+auto NOT_NULL_NS_IMPL::detail::not_null_factory::make(T&& p)
+  -> not_null<typename std::decay<T>::type>
+{
+  using value_type = typename std::decay<T>::type;
+
+  return not_null<value_type>{
+    typename not_null<value_type>::ctor_tag{},
+    not_null_forward<T>(p)
+  };
+}
+
 //=============================================================================
 // class : not_null
 //=============================================================================
@@ -833,11 +856,11 @@ cpp::bitwizeshift::not_null<T>::not_null(ctor_tag, P&& ptr)
 
 template <typename T>
 inline constexpr NOT_NULL_INLINE_VISIBILITY
-auto NOT_NULL_NS_IMPL::check_not_null(T&& t)
+auto NOT_NULL_NS_IMPL::check_not_null(T&& ptr)
   -> not_null<typename std::decay<T>::type>
 {
-  return (t != nullptr || (detail::throw_null_pointer_error(), true)),
-    assume_not_null(detail::not_null_forward<T>(t));
+  return (ptr != nullptr || (detail::throw_null_pointer_error(), true)),
+    assume_not_null(detail::not_null_forward<T>(ptr));
 }
 
 #if defined(__clang__)
@@ -848,16 +871,11 @@ auto NOT_NULL_NS_IMPL::check_not_null(T&& t)
 
 template <typename T>
 inline constexpr NOT_NULL_INLINE_VISIBILITY
-auto NOT_NULL_NS_IMPL::assume_not_null(T&& t)
+auto NOT_NULL_NS_IMPL::assume_not_null(T&& ptr)
   noexcept(std::is_nothrow_constructible<typename std::decay<T>::type,T>::value)
   -> not_null<typename std::decay<T>::type>
 {
-  using value_type = typename std::decay<T>::type;
-
-  return not_null<value_type>{
-    typename not_null<value_type>::ctor_tag{},
-    std::forward<T>(t)
-  };
+  return detail::not_null_factory::make(detail::not_null_forward<T>(ptr));
 }
 
 //-----------------------------------------------------------------------------
