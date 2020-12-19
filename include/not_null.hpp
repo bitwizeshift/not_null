@@ -641,6 +641,8 @@ inline namespace bitwizeshift {
 } // inline namespace bitwizeshift
 } // namespace cpp
 
+#if !defined(NOT_NULL_DISABLE_EXCEPTIONS)
+
 inline
 NOT_NULL_NS_IMPL::not_null_contract_violation::not_null_contract_violation()
   : logic_error{
@@ -650,6 +652,8 @@ NOT_NULL_NS_IMPL::not_null_contract_violation::not_null_contract_violation()
 {
 
 }
+
+#endif // !defined(NOT_NULL_DISABLE_EXCEPTIONS)
 
 //=============================================================================
 // detail utilities : not_null
