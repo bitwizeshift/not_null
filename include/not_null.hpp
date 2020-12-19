@@ -468,10 +468,79 @@ inline namespace bitwizeshift {
   // Utilities
   //---------------------------------------------------------------------------
 
+  /// \brief Creates a `not_null` object by checking that `ptr` is not null
+  ///        first
+  ///
+  /// If `NOT_NULL_DISABLE_EXCEPTIONS` is defined, this function will print to
+  /// `stderr` and trigger a `SIGABRT`; otherwise this function throws an
+  /// exception. The `not_null_contract_violation` exception thrown is not
+  /// intended to be caught and handled in most workflows; rather this is meant
+  /// as a simple way to tear-down an application placed into an undesirable
+  /// state through the use of stack-unwinding.
+  ///
+  /// `check_not_null` contains the overhead of checking for null first, but
+  /// is opt-in. If a type is known to never be null, consider `assume_not_null`
+  /// below.
+  ///
+  /// ### Examples
+  ///
+  /// Basic use:
+  ///
+  /// ```cpp
+  /// // Adapting legacy API
+  /// auto consume_impl(not_null<std::unique_ptr<Widget>>) -> void;
+  ///
+  /// auto consume(std::unique_ptr<Widget> p) -> void
+  /// {
+  ///     // Expect this invariant in our code; crash if not.
+  ///     consume_impl(check_not_null(std::move(p));
+  /// }
+  ///
+  /// ```
+  ///
+  /// \throw not_null_contract_violation if `ptr == nullptr`
+  /// \param ptr the pointer to check for nullability first
+  /// \return a `not_null` object containing `ptr`
   template <typename T>
   constexpr auto check_not_null(T&& ptr)
     -> not_null<typename std::decay<T>::type>;
 
+  /// \brief Creates a `not_null` object by *assuming* that `ptr` is not null
+  ///
+  /// Since this function does no proper checking, it is up to the user to
+  /// guarantee that `ptr` does not violate the invariant. If the invariant is
+  /// *not* upheld, the user may experience **undefined behavior** due to
+  /// potential null pointer dereferences, and due to other code assuming nulls
+  /// can never happen.
+  ///
+  /// This function should only be used in cases where it can be guaranteed that
+  /// `ptr` can never be null, such as for an object's invariant, or when
+  /// using `not_null` with already known non-null objects.
+  ///
+  /// ### Examples
+  ///
+  /// Basic use:
+  ///
+  /// ```cpp
+  /// auto x = 5;
+  /// auto nn = assume_not_null(&x); // we know 'x' cannot be null
+  ///
+  /// assert(nn == &x);
+  /// ```
+  ///
+  /// or
+  ///
+  /// ```cpp
+  /// // 'make_shared' never returns null
+  /// auto p = assume_not_null(
+  ///   std::make_shared<int>(42)
+  /// );
+  ///
+  /// consume_not_null(std::move(p));
+  /// ```
+  ///
+  /// \param ptr the pointer that cannot be null
+  /// \return a not_null containing the pointer
   template <typename T>
   constexpr auto assume_not_null(T&& ptr)
     noexcept(std::is_nothrow_constructible<typename std::decay<T>::type,T>::value)
