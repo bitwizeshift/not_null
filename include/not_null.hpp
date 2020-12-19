@@ -148,7 +148,7 @@ inline namespace bitwizeshift {
     /// \}
 
     /// \brief Throws a not_null_contract_violation in exception mode
-    [[noreturn]] NOT_NULL_CPP14_CONSTEXPR auto throw_null_pointer_error() -> void;
+    [[noreturn]] auto throw_null_pointer_error() -> void;
 
     ///////////////////////////////////////////////////////////////////////////
     /// \brief A private type that exists to construct no_null's using the
