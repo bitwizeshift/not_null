@@ -140,10 +140,10 @@ inline namespace bitwizeshift {
     /// \param p the pointer-like type
     /// \return the underlying raw pointer
     template <typename U>
-    static constexpr auto not_null_to_address(U* p)
+    constexpr auto not_null_to_address(U* p)
       noexcept -> U*;
     template <typename Ptr>
-    static constexpr auto not_null_to_address(const Ptr& p)
+    constexpr auto not_null_to_address(const Ptr& p)
       noexcept -> decltype(::NOT_NULL_NS_IMPL::detail::not_null_to_address(p.operator->()));
     /// \}
 
