@@ -849,7 +849,11 @@ cpp::bitwizeshift::not_null<T>::not_null(ctor_tag, P&& ptr)
 #if defined(__clang__)
 # pragma clang diagnostic push
 # pragma clang diagnostic ignored "-Wunused-value"
-# pragma clang diagnostic ignored "-Wcomma"
+// clang 3.9 introduces -Wcomma, which incorrectly warns that the comma
+// operator may be misused below. This diagnostic has been disabled.
+# if (__clang_major__ >= 4) || ((__clang_major__ == 3) && (__clang_minor__ >= 9))
+#   pragma clang diagnostic ignored "-Wcomma"
+# endif
 #elif defined(__GNUC__)
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wunused-value"
