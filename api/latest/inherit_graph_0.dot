@@ -1,0 +1,9 @@
+digraph "Graphical Class Hierarchy"
+{
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="LR";
+  Node0 [label="true_type",height=0.2,width=0.4,color="grey75", fillcolor="white", style="filled"];
+  Node0 -> Node0 [dir="back",color="midnightblue",fontsize="10",style="solid",fontname="Helvetica"];
+  Node0 [label="cpp::bitwizeshift::\lis_not_null\< not_null\l\< T \> \>",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$de/dfc/structcpp_1_1bitwizeshift_1_1is__not__null_3_01not__null_3_01_t_01_4_01_4.html"];
+}
