@@ -39,6 +39,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(header_files
+  include/not_null.hpp
 )
 
 add_library(${PROJECT_NAME} INTERFACE)
