@@ -131,7 +131,6 @@ inline namespace bitwizeshift {
   // detail utilities : not_null
   //===========================================================================
 
-  // std::forward is not constexpr until C++14
   namespace detail {
     /// \{
     /// \brief Recursively calls `operator->()` on `p` until a raw pointer is
@@ -142,9 +141,20 @@ inline namespace bitwizeshift {
     template <typename U>
     constexpr auto not_null_to_address(U* p)
       noexcept -> U*;
+
+    // MSVC does not accept an out-of-line definition of a recursive
+    // trailing-return-type definition like this, but it accepts it when
+    // inline.
     template <typename Ptr>
     constexpr auto not_null_to_address(const Ptr& p)
-      noexcept -> decltype(::NOT_NULL_NS_IMPL::detail::not_null_to_address(p.operator->()));
+      noexcept -> decltype(not_null_to_address(p.operator->()))
+    {
+#if __cplusplus >= 202002L
+      return std::to_address(p);
+#else
+      return not_null_to_address(p.operator->());
+#endif
+    }
     /// \}
 
     /// \brief Throws a not_null_contract_violation in exception mode
@@ -644,18 +654,6 @@ NOT_NULL_NS_IMPL::not_null_contract_violation::not_null_contract_violation()
 //=============================================================================
 // detail utilities : not_null
 //=============================================================================
-
-template <typename Ptr>
-inline constexpr NOT_NULL_INLINE_VISIBILITY
-auto NOT_NULL_NS_IMPL::detail::not_null_to_address(const Ptr& p)
-  noexcept -> decltype(::NOT_NULL_NS_IMPL::detail::not_null_to_address(p.operator->()))
-{
-#if __cplusplus >= 202002L
-  return std::to_address(p);
-#else
-  return not_null_to_address(p.operator->());
-#endif
-}
 
 template <typename U>
 inline constexpr NOT_NULL_INLINE_VISIBILITY
