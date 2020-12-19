@@ -1,10 +1,20 @@
 # not_null
 
+[![Ubuntu Build Status](https://github.com/bitwizeshift/not_null/workflows/Ubuntu/badge.svg?branch=master)](https://github.com/bitwizeshift/not_null/actions?query=workflow%3AUbuntu)
+[![macOS Build Status](https://github.com/bitwizeshift/not_null/workflows/macOS/badge.svg?branch=master)](https://github.com/bitwizeshift/not_null/actions?query=workflow%3AmacOS)
+[![Windows Build Status](https://github.com/bitwizeshift/not_null/workflows/Windows/badge.svg?branch=master)](https://github.com/bitwizeshift/not_null/actions?query=workflow%3AWindows)
+[![Coverage Status](https://coveralls.io/repos/github/bitwizeshift/not_null/badge.svg?branch=master)](https://coveralls.io/github/bitwizeshift/not_null?branch=master)
+[![Github Issues](https://img.shields.io/github/issues/bitwizeshift/not_null.svg)](http://github.com/bitwizeshift/not_null/issues)
+<br>
+[![Github Releases](https://img.shields.io/github/v/release/bitwizeshift/not_null.svg?include_prereleases)](https://github.com/bitwizeshift/not_null/releases)
+<br>
+[![Try online](https://img.shields.io/badge/try-online-blue.svg)](#)
+
 **not_null** is a **0-overhead**, modern utility for ensuring non-nullability
 in a coherent way.
 
-Unlike `gsl::not_null`, this type can work with move-only pointers like 
-`std::unique_ptr`, and does not require runtime checks unless explicitly 
+Unlike `gsl::not_null`, this type can work with move-only pointers like
+`std::unique_ptr`, and does not require runtime checks unless explicitly
 specified.
 
 ## Teaser
@@ -25,7 +35,7 @@ register_widget(cpp::check_not_null(std::move(p)));
 
 ## Features
 
-* [x] Zero-Overhead; `not_null` has no hidden additional runtime 
+* [x] Zero-Overhead; `not_null` has no hidden additional runtime
       or storage overhead.
 * [x] Written completely in <kbd>C++11</kbd>
 * [x] Single-header, **header-only** solution -- easily drops into any project
@@ -71,7 +81,7 @@ register_widget(cpp::check_not_null(std::move(p)));
 
 ## References
 
-* [`alloy::core::not_null`](https://github.com/bitwizeshift/Alloy/blob/78abb03feff35ead86888f445d48acbe72ada8c5/lib/alloy-core/include/alloy/core/utilities/not_null.hpp): 
+* [`alloy::core::not_null`](https://github.com/bitwizeshift/Alloy/blob/78abb03feff35ead86888f445d48acbe72ada8c5/lib/alloy-core/include/alloy/core/utilities/not_null.hpp):
   the original implementation that this utility is based on.
 * [`gsl::not_null`](https://raw.githubusercontent.com/microsoft/GSL/master/include/gsl/pointers):
   a competing implementation offered as part of the core-guidelines support
