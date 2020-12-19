@@ -2,6 +2,7 @@ find_package(Catch2 REQUIRED)
 
 set(source_files
   src/main.cpp
+  src/not_null.test.cpp
 )
 
 add_executable(${PROJECT_NAME}.test
