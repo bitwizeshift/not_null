@@ -827,7 +827,7 @@ auto NOT_NULL_NS_IMPL::not_null<T>::operator*()
 template <typename T>
 template <typename P>
 inline constexpr NOT_NULL_INLINE_VISIBILITY
-cpp::bitwizeshift::not_null<T>::not_null(ctor_tag, P&& ptr)
+NOT_NULL_NS_IMPL::not_null<T>::not_null(ctor_tag, P&& ptr)
   noexcept(std::is_nothrow_constructible<typename std::decay<P>::type, P>::value)
   : m_pointer(detail::not_null_forward<P>(ptr))
 {
