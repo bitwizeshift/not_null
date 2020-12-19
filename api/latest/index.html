@@ -83,7 +83,10 @@ $(document).ready(function(){initNavTree('index.html','');});
 <div class="title">not_null </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><b>not_null</b> is a <b>0-overhead</b>, modern utility for ensuring non-nullability in a coherent way.</p>
+<div class="textblock"><p><a href="https://github.com/bitwizeshift/not_null/actions?query=workflow%3AUbuntu"></a> <a href="https://github.com/bitwizeshift/not_null/actions?query=workflow%3AmacOS"></a> <a href="https://github.com/bitwizeshift/not_null/actions?query=workflow%3AWindows"></a> <a href="https://coveralls.io/github/bitwizeshift/not_null?branch=master"></a> <a href="http://github.com/bitwizeshift/not_null/issues"></a> <br />
+ <a href="https://github.com/bitwizeshift/result/releases"></a> <br />
+ <a href="#"></a></p>
+<p><b>not_null</b> is a <b>0-overhead</b>, modern utility for ensuring non-nullability in a coherent way.</p>
 <p>Unlike <code>gsl::not_null</code>, this type can work with move-only pointers like <code>std::unique_ptr</code>, and does not require runtime checks unless explicitly specified.</p>
 <h2>Teaser</h2>
 <div class="fragment"><div class="line"><span class="keyword">auto</span> register_widget(cpp::not_null&lt;std::unique_ptr&lt;Widget&gt;&gt; p) -&gt; <span class="keywordtype">void</span></div><div class="line">{</div><div class="line">  legacy_service.adopt_widget(std::move(p).as_nullable());</div><div class="line">}</div><div class="line"></div><div class="line">...</div><div class="line"></div><div class="line"><span class="comment">// use &#39;cpp::check_not_null&#39; to check and validate that &#39;p&#39; is not null</span></div><div class="line">register_widget(cpp::check_not_null(std::move(p)));</div></div><!-- fragment --><p><code><a href="#todo">Live Example</a></code></p>
