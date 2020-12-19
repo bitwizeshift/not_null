@@ -110,9 +110,6 @@ inline namespace bitwizeshift {
 
   // std::forward is not constexpr until C++14
   namespace detail {
-#if __cplusplus >= 201402L
-    using std::forward;
-#else
     template <typename T>
     inline NOT_NULL_INLINE_VISIBILITY constexpr
     auto not_null_forward(typename std::remove_reference<T>::type& t)
@@ -128,7 +125,6 @@ inline namespace bitwizeshift {
     {
       return static_cast<T&&>(t);
     }
-#endif
   } // namespace detail
 
   //===========================================================================
