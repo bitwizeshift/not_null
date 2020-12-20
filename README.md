@@ -100,7 +100,7 @@ are presented:
 * `assume_not_null`, which does no checking to produce the `not_null` and has
   zero overhead, which is to be used for known non-null values
 
-With these, consumers are _required_ to consent to a check, or be explicitly
+With these, consumers are _required_ to consent to a check, or explicitly
 state that their pointers are non-null, to reduce errors. This leaves any
 remaining uses of `not_null` as nothing more than a 0-overhead wrapper; making
 any runtime checks a manully consented operation. For example:
