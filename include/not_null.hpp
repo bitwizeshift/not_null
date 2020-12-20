@@ -170,6 +170,16 @@ inline namespace bitwizeshift {
       static constexpr auto make(T&& p) -> not_null<typename std::decay<T>::type>;
     };
 
+    /// \brief Hint to the compiler that the pointer \p p can never be null
+    ///
+    /// \param p the pointer that can never be null
+    /// \return \p p
+    template <typename T>
+#if defined(__GNUC__) || defined(__clang__)
+      [[gnu::returns_nonnull]]
+#endif
+    constexpr auto mark_nonnull(T* p) noexcept -> T*;
+
     template <typename T, typename U>
     struct not_null_is_explicit_convertible : std::integral_constant<bool,(
       std::is_constructible<T,U>::value &&
@@ -685,6 +695,19 @@ auto NOT_NULL_NS_IMPL::detail::throw_null_pointer_error()
 
 template <typename T>
 inline constexpr NOT_NULL_INLINE_VISIBILITY
+auto NOT_NULL_NS_IMPL::detail::mark_nonnull(T* p) noexcept -> T*
+{
+#if defined(_MSC_VER)
+  // use Microsoft's builtin '__assume' to hint to the compiler that p
+  // cannot be null
+  return (__assume(p != nullptr), p);
+#else
+  return p; // nullability is confirmed with gnu::returns_nonnull
+#endif
+}
+
+template <typename T>
+inline constexpr NOT_NULL_INLINE_VISIBILITY
 auto NOT_NULL_NS_IMPL::detail::not_null_factory::make(T&& p)
   -> not_null<typename std::decay<T>::type>
 {
@@ -775,7 +798,7 @@ inline constexpr NOT_NULL_INLINE_VISIBILITY
 auto NOT_NULL_NS_IMPL::not_null<T>::get()
   const noexcept -> pointer
 {
-  return detail::not_null_to_address(m_pointer);
+  return detail::mark_nonnull(detail::not_null_to_address(m_pointer));
 }
 
 template <typename T>
