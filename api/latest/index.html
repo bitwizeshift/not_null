@@ -84,26 +84,80 @@ $(document).ready(function(){initNavTree('index.html','');});
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><p><a href="https://github.com/bitwizeshift/not_null/actions?query=workflow%3AUbuntu"></a> <a href="https://github.com/bitwizeshift/not_null/actions?query=workflow%3AmacOS"></a> <a href="https://github.com/bitwizeshift/not_null/actions?query=workflow%3AWindows"></a> <a href="https://coveralls.io/github/bitwizeshift/not_null?branch=master"></a> <a href="http://github.com/bitwizeshift/not_null/issues"></a> <br />
- <a href="https://github.com/bitwizeshift/not_null/releases"></a> <br />
- <a href="#"></a></p>
-<p><b>not_null</b> is a <b>0-overhead</b>, modern utility for ensuring non-nullability in a coherent way.</p>
+ <a href="https://github.com/bitwizeshift/not_null/releases"></a> <a href="https://bintray.com/bitwizeshift/public-conan/NotNull%3Anot_null/_latestVersion"></a> <br />
+ <a href="https://godbolt.org/z/nPrnc7"></a></p>
+<p><b>not_null</b> is a 0-overhead modern utility for ensuring non-nullability in a simple and coherent way.</p>
 <p>Unlike <code>gsl::not_null</code>, this type can work with move-only pointers like <code>std::unique_ptr</code>, and does not require runtime checks unless explicitly specified.</p>
+<p><em>Stop worrying about nulls, and use <code>not_null</code> today!</em></p>
 <h2>Teaser</h2>
-<div class="fragment"><div class="line"><span class="keyword">auto</span> register_widget(cpp::not_null&lt;std::unique_ptr&lt;Widget&gt;&gt; p) -&gt; <span class="keywordtype">void</span></div><div class="line">{</div><div class="line">  legacy_service.adopt_widget(std::move(p).as_nullable());</div><div class="line">}</div><div class="line"></div><div class="line">...</div><div class="line"></div><div class="line"><span class="comment">// use &#39;cpp::check_not_null&#39; to check and validate that &#39;p&#39; is not null</span></div><div class="line">register_widget(cpp::check_not_null(std::move(p)));</div></div><!-- fragment --><p><code><a href="#todo">Live Example</a></code></p>
+<div class="fragment"><div class="line"><span class="keyword">auto</span> register_widget(cpp::not_null&lt;std::unique_ptr&lt;Widget&gt;&gt; p) -&gt; <span class="keywordtype">void</span></div><div class="line">{</div><div class="line">  legacy_service.adopt_widget(std::move(p).as_nullable());</div><div class="line">}</div><div class="line"></div><div class="line">...</div><div class="line"></div><div class="line"><span class="comment">// use &#39;cpp::check_not_null&#39; to check and validate that &#39;p&#39; is not null</span></div><div class="line">register_widget(cpp::check_not_null(std::move(p)));</div></div><!-- fragment --><p><code><a href="https://godbolt.org/z/nPrnc7">Live Example</a></code></p>
 <h2>Features</h2>
 <ul>
+<li>[x] Works with <code>unique_ptr</code>, and still allows nullability</li>
 <li>[x] Zero-Overhead; <code>not_null</code> has no hidden additional runtime or storage overhead.</li>
-<li>[x] Written completely in <code>C++11</code></li>
+<li>[x] Written to be compatible with <code>C++11</code></li>
 <li>[x] Single-header, <b>header-only</b> solution &ndash; easily drops into any project</li>
 <li>[x] No dependencies</li>
 </ul>
 <h2>Documentation</h2>
 <ul>
 <li><a href="#background">Background</a> \ A background on the problem <b>not_null</b> solves</li>
+<li>Tutorial \ A quick pocket-guide to using <b>not_null</b></li>
 <li>Installation \ For a quick guide on how to install/use this in other projects</li>
 <li><a href="https://bitwizeshift.github.io/not_null/api/latest/">API Reference</a> \ For doxygen-generated API information</li>
 <li>Attribution \ Information about how to attribute this project</li>
 </ul>
+<h2>Background</h2>
+<p>When working in a codebase, it's often difficult to know when any given pointer may legally contain a null pointer value. This requires the user to do one of two possible things:</p>
+<ul>
+<li>Make an assumption that the pointer can never be <code>nullptr</code>, which risks the posibility of a null-pointer dereference leading to undefined behavior, or</li>
+<li>Always check for <code>nullptr</code> before using &ndash; resulting in more complicated code paths, more branches, and potential pessimizations</li>
+</ul>
+<p>This is the driving force behind a <code>not_null</code> utility. The Guidelines Support Library offers <code>gsl::not_null</code> to attempt to satisfy this, though this has two notable limitations:</p>
+<ul>
+<li>Construction and assignment of <code>not_null</code> is implicit, and requires runtime checks unconditionally (which may result in a contract violation); for example: <div class="fragment"><div class="line"><span class="comment">// Performs check that the pointer is not null, when the expression can never</span></div><div class="line"><span class="comment">// take on the form of a non-null pointer</span></div><div class="line">gsl::not_null&lt;int*&gt; p = <span class="keyword">new</span> <span class="keywordtype">int</span>{42};</div></div><!-- fragment --></li>
+<li>it does not work with move-only pointer types like <code>unique_ptr</code>, for example: <div class="fragment"><div class="line">gsl::not_null&lt;std::unique_ptr&lt;int&gt;&gt; p = std::make_unique&lt;int&gt;(42);</div><div class="line"><span class="comment">// This errors due to &#39;p&#39; not being movable!</span></div><div class="line">gsl::not_null&lt;std::unique_ptr&lt;int&gt;&gt; q = std::move(p);</div></div><!-- fragment --></li>
+</ul>
+<p>This is where this library comes in.</p>
+<p>Rather than allow implicit construction and assignment from the underlying pointer, this library takes the hard stance of <b>correct on construction</b>, which uses factory functions to produce the <code>not_null</code> objects. Two factories are presented:</p>
+<ul>
+<li><code>check_not_null</code>, which checks a pointer for nullability before raising a contract violation, which by default is thrown as an exception, or</li>
+<li><code>assume_not_null</code>, which does no checking to produce the <code>not_null</code> and has zero overhead, which is to be used for known non-null values</li>
+</ul>
+<p>With these, consumers are <em>required</em> to consent to a check, or be explicitly state that their pointers are non-null, to reduce errors. This leaves any remaining uses of <code>not_null</code> as nothing more than a 0-overhead wrapper; making any runtime checks a manully consented operation. For example:</p>
+<div class="fragment"><div class="line"><span class="comment">// No check performed, since the expression can never be null!</span></div><div class="line">cpp::not_null&lt;int*&gt; p = cpp::assume_not_null(<span class="keyword">new</span> <span class="keywordtype">int</span>{42});</div><div class="line"></div><div class="line"><span class="comment">// Get pointer from API that we *expect* to be null, but cannot guarantee</span></div><div class="line"><span class="keyword">auto</span> q = cpp::check_not_null(get_pointer());</div></div><!-- fragment --><p>Additionally, <code>not_null</code> allows for move-constructors and move-assignment, since reusing an object after a move is generally a logic-error, and there are many pieces of tooling that will check for such a case. This allows better interop with types like <code>unique_ptr</code>, and also allows for this <code>not_null</code> to communicate with more legacy APIs by propagating such pointers out efficiently:</p>
+<div class="fragment"><div class="line"><span class="comment">// Should never be null, but not yet refactored to be &#39;not_null&#39;</span></div><div class="line"><span class="keyword">auto</span> old_api(std::unique_ptr&lt;Widget&gt; p) -&gt; void;</div><div class="line"></div><div class="line"><span class="keyword">auto</span> new_api(cpp::not_null&lt;std::unique_ptr&lt;Widget&gt;&gt; p) -&gt; <span class="keywordtype">void</span></div><div class="line">{</div><div class="line">  <span class="comment">// Extract the move-only unique_ptr, and push along to &#39;old_api&#39;</span></div><div class="line">  old_api(std::move(p).as_nullable());</div><div class="line">}</div></div><!-- fragment --><h2>Optional Features</h2>
+<p>The defaults for this library should satisfy most consumers needs; however <b>not_null</b> supports two optional features that may be controlled through preprocessor symbols:</p>
+<ol type="1">
+<li>Using a custom namespace, and</li>
+<li>Disabling all exceptions</li>
+</ol>
+<h3>Using a Custom Namespace</h3>
+<p>The <code>namespace</code> that <code>not_null</code> is defined in is configurable. By default, it is defined in <code>namespace cpp</code>; however this can be toggled by defining the preprocessor token <code>NOT_NULL_NAMESPACE</code> to be the name of the desired namespace.</p>
+<p>This could be done either through a <code>#define</code> preprocessor directive prior to inclusion:</p>
+<div class="fragment"><div class="line"><span class="preprocessor">#define NOT_NULL_NAMESPACE example</span></div><div class="line"><span class="preprocessor">#include &lt;not_null.hpp&gt;</span></div><div class="line"></div><div class="line"><span class="keyword">auto</span> test(example::not_null&lt;int*&gt; p) -&gt; void;</div></div><!-- fragment --><p><code><a href="https://godbolt.org/z/1nd8Wj">Try Online</a></code></p>
+<p>Or it could also be defined using a compiler flag with <code>-D</code> or <code>/D</code>, such as:</p>
+<p><code>g++ -std=c++11 -DNOT_NULL_NAMESPACE=example test.cpp</code></p>
+<div class="fragment"><div class="line"><span class="preprocessor">#include &lt;not_null.hpp&gt;</span></div><div class="line"></div><div class="line"><span class="keyword">auto</span> test(example::not_null&lt;int*&gt; p) -&gt; void;</div></div><!-- fragment --><p><code><a href="https://godbolt.org/z/x6rjej">Try Online</a></code></p>
+<h3>Disabling Exceptions</h3>
+<p>By default, <code>not_null</code> will throw a <code>cpp::not_null_contract_violation</code> when the contract has been violated (during factory construction).</p>
+<p>However, it is realized that not all developers appreciate or use exceptions, and that environments that disable exception handling specifically may error due to the existence of a <code>throw</code> expression. To account for this possibility, exceptions may be disabled through the introduction of a simple macro preprocessor symbol: <code>NOT_NULL_DISABLE_EXCEPTIONS</code>.</p>
+<p>In doing so, contract-violations will now behave differently:</p>
+<ul>
+<li>Contract violations will call <code>std::abort</code>, causing immediate termination (and often, core-dumps for diagnostic purposes)</li>
+<li>Contract violations will print directly to <code>stderr</code> to allow context for the termination</li>
+<li>Since exceptions are disabled, there is no way to perform a proper stack unwinding &ndash; so destructors will <em>not be run</em>. There is simply no way to allow for proper RAII cleanup without exceptions in this case.</li>
+</ul>
+<p><code><a href="https://godbolt.org/z/5na3KW">Try Online</a></code></p>
+<h2>Compiler Compatibility</h2>
+<p><b>not_null</b> is compatible with any compiler capable of compiling valid <code>C++11</code>. Specifically, this has been tested and is known to work with:</p>
+<ul>
+<li>GCC 5, 6, 7, 8, 9, 10</li>
+<li>Clang 3.5, 3.6, 3.7, 3.8, 3.9, 4, 5, 6, 7, 8, 9, 10, 11</li>
+<li>Apple Clang (Xcode) 10.3, 11.2, 11.3, 12.3</li>
+<li>Visual Studio 2015, 2017, 2019</li>
+</ul>
+<p>Latest patch level releases are assumed in the versions listed above.</p>
 <h2>License</h2>
 <div class="image">
 <img src="http://opensource.org/trademarks/opensource/OSI-Approved-License-100x137.png" align="right"/>
