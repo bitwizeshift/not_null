@@ -7,6 +7,7 @@
 [![Github Issues](https://img.shields.io/github/issues/bitwizeshift/not_null.svg)](http://github.com/bitwizeshift/not_null/issues)
 <br>
 [![Github Releases](https://img.shields.io/github/v/release/bitwizeshift/not_null.svg?include_prereleases)](https://github.com/bitwizeshift/not_null/releases)
+[![Bintray Releases](https://api.bintray.com/packages/bitwizeshift/public-conan/NotNull%3Anot_null/images/download.svg)](https://bintray.com/bitwizeshift/public-conan/NotNull%3Anot_null/_latestVersion)
 <br>
 [![Try online](https://img.shields.io/badge/try-online-blue.svg)](#)
 
